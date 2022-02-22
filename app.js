@@ -3,13 +3,6 @@ require('dotenv').config();
 
 const fs = require('fs');
 
-const config = require('./config.json');
-const message = require(config.HELP_FILE);
-
-//Help
-const Help = require('./legacy/LEGACY_help.js');
-const help = new Help(message);
-
 //Discord Lib
 const { Client, Collection, Intents, } = require('discord.js');
 
@@ -18,26 +11,14 @@ beyondIntents.add(
     Intents.FLAGS.GUILDS, 
     Intents.FLAGS.GUILD_MEMBERS, 
     Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_PRESENCES)
-const bot = new Client({ intents: beyondIntents });
+    Intents.FLAGS.GUILD_PRESENCES,
+    Intents.FLAGS.DIRECT_MESSAGES,
+    Intents.FLAGS.DIRECT_MESSAGE_REACTIONS)
+const bot = new Client({ intents: beyondIntents, partials: ["CHANNEL"] });
 
 //Trace Module
 const {err, wrn, inf, not, dbg} = require('./trace.js');
 //#endregion
-
-//Initializing Discord Bot
-/*
-bot.once('ready', () => {
-    inf('The bot is online');
-    bot.user.setPresence({
-        activities: {
-            type: 'PLAYING',
-            name: 'Destiny 2'
-        },
-        status: 'online'
-    })
-})
-*/
 
 //#region Event Handling
 
@@ -51,7 +32,6 @@ for (const file of eventFiles) {
         bot.on(event.name, (...args) => event.execute(...args));
     }
 }
-
 //#endregion
 
 //#region Command handling
@@ -64,7 +44,9 @@ for (const file of commandFiles) {
 }
 
 bot.on ('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand()) return; //Is the message a command ?
+    if(interaction.channel.type === "DM") return;
+    if (interaction.user.bot) return; //Is the user a bot ?
 
     const command = bot.commands.get(interaction.commandName);
     if (!command) return;

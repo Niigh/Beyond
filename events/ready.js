@@ -7,6 +7,13 @@ module.exports = {
     name: 'ready',
     once:true,
     execute(client) {
-        inf(`The bot is online and logged as ${client.user.tag} `);
+        inf(`The bot is online and logged as ${client.user.tag}`);
+        client.user.setPresence({
+            activities: [{
+                name: 'Destiny 2'
+            }],
+            status: 'PLAYING'
+        });
+        inf(`Bot presence set`);
     },
 };
