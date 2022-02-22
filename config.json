@@ -1,0 +1,4 @@
+{
+    "env": "dev",
+    "HELP_FILE": "./json/help.json"
+}
