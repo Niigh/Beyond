@@ -10,6 +10,7 @@ module.exports = {
         .setName('server')
         .setDescription('Replies with server infos'),
     async execute(interaction) {
+        inf(`Command server called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         await interaction.reply(`Server name: ${interaction.guild.name}\nTotal members: ${interaction.guild.memberCount}`);
     },
 };

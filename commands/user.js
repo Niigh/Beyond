@@ -10,6 +10,7 @@ module.exports = {
         .setName('user')
         .setDescription('Replies with user infos !'),
     async execute(interaction) {
+        inf(`Command user called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         await interaction.reply(`Your tag: ${interaction.user.tag}\nYour id: ${interaction.user.id}`);
     },
 };

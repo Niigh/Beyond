@@ -10,6 +10,7 @@ module.exports = {
         .setName('ping')
         .setDescription('Replies with Pong !'),
     async execute(interaction) {
+        inf(`Command ping called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         await interaction.reply('Pong !');
     },
 };
