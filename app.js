@@ -37,9 +37,15 @@ for (const file of eventFiles) {
 //#region Command handling
 bot.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const destinyCommandFiles = fs.readdirSync('./commands/destiny').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
+    bot.commands.set(command.data.name, command);
+}
+
+for (const file of destinyCommandFiles) {
+    const command = require(`./commands/destiny/${file}`);
     bot.commands.set(command.data.name, command);
 }
 
@@ -51,16 +57,31 @@ bot.on ('interactionCreate', async interaction => {
     const command = bot.commands.get(interaction.commandName);
     if (!command) return;
 
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        err(error);
-        await interaction.reply({
-            content: 'The command couldn\'t be executed due to an error.',
-            ephemeral: true
-        });
+    // Bot latency check
+    if(command.data.name === 'ping') {
+        try {
+            await command.execute(interaction, bot);
+        } catch (error) {
+            err(error);
+            await interaction.reply({
+                content: 'Couldn\'t get bot\'s ping.',
+                ephemeral: true
+            });
+        }
+    } else {
+        try {
+            await command.execute(interaction);
+        } catch (error) {
+            err(error);
+            await interaction.reply({
+                content: 'The command couldn\'t be executed due to an error.',
+                ephemeral: true
+            });
+        }
     }
 });
 //#endregion
 
-bot.login(process.env.DISCORD_TOKEN);
+bot.login(process.env.DISCORD_TOKEN).catch( error => {
+    err("Can't log Beyond Bot : ", error);
+});
