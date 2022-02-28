@@ -1,7 +1,7 @@
 //#region libs
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const { BungieAPI } = require(`../../lib/bungie-api-v2.js`);
+const { BungieAPI } = require(`../../lib/bungie-api.js`);
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
@@ -37,12 +37,16 @@ module.exports = {
         bungieAPI = new BungieAPI();
         bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${bungieTag}/`)
             .then(res => {
-                console.log(`statusCode: ${res.status}`)
-                console.log(res.data.Response)
+                //console.log(`statusCode: ${res.status}`)
+                //console.log(res.data.Response)
+                if(bungieAPI.isBungieAPIDown(res)) {
+                    
+                };
               })
             .catch(error => {
                 console.error(error)
             })
+        
         //{ memID, memType } = guildData.GetValidDestinyMembership();
 
         await interaction.reply('You linked your account.');
