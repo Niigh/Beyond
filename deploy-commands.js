@@ -16,8 +16,8 @@ const destinyCommandFiles = fs.readdirSync('./commands/destiny').filter(file => 
 not(`Command files list: ${commandFiles}`);
 
 //IDs
-const clientId = "945264160164446248";
-const guildId = "945267251416793099";
+const clientId = String(process.env.CLIENT_ID);
+
 
 for (const file of commandFiles) {
     inf('General commands');
