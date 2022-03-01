@@ -18,7 +18,6 @@ not(`Command files list: ${commandFiles}`);
 //IDs
 const clientId = String(process.env.CLIENT_ID);
 
-
 for (const file of commandFiles) {
     inf('General commands');
     not(`File: ${file}`);
