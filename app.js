@@ -16,8 +16,6 @@ beyondIntents.add(
     Intents.FLAGS.DIRECT_MESSAGE_REACTIONS)
 const bot = new Client({ intents: beyondIntents, partials: ["CHANNEL"] });
 
-const { GuildData } = require('./data/account.js');
-
 //Trace Module
 const {err, wrn, inf, not, dbg} = require('./trace.js');
 //#endregion
@@ -35,8 +33,6 @@ for (const file of eventFiles) {
     }
 }
 //#endregion
-
-const guildData = new GuildData();
 
 //#region Command handling
 bot.commands = new Collection();
@@ -65,16 +61,6 @@ bot.on ('interactionCreate', async interaction => {
     if(command.data.name === 'ping' || command.data.name === 'shutdown') {
         try {
             await command.execute(interaction, bot);
-        } catch (error) {
-            err(error);
-            await interaction.reply({
-                content: 'The command couldn\'t be executed due to an error.',
-                ephemeral: true
-            });
-        }
-    } else if (command.data.name === 'link') {
-        try {
-            await command.execute(interaction, guildData);
         } catch (error) {
             err(error);
             await interaction.reply({

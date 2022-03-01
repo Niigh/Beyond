@@ -1,7 +1,9 @@
 //#region libs
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const { BungieAPI } = require(`../../lib/bungie-api.js`);
+const { BungieAPI } = require('../../lib/bungie-api.js');
+
+const db = require('../../lib/database-management.js');
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
@@ -23,14 +25,14 @@ module.exports = {
             .addChoice('Xbox', 'Xbox')
             .addChoice('Steam', 'Steam')
             .addChoice('Stadia', 'Stadia')),
-    async execute(interaction, guildData) {
+    async execute(interaction) {
         inf(`Command link called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         const discordID = interaction.user.id;
         const bungieTag = interaction.options.getString('bungie-tag');
 
-        if(guildData.isExistingLinkedUser(discordID)) {
+        if(db.isUserExist(discordID)) {
             inf('This user is already registered.');
-            await interaction.reply({content: `Your account is already linked : ${guildData.getLinkedUser(discordID)}`, ephemeral: true});
+            await interaction.reply({content: `Your account is already linked : ${db.getBungieTag(discordID)}`, ephemeral: true});
             return;
         }
 
@@ -63,20 +65,15 @@ module.exports = {
                     };
                 };
 
-                memberPlateform = bungieAPI.getPlateform(memberType);
-
                 if(!bungieAPI.isPublicAccount(res.data.Response)) {
+                    wrn('Account set on private.');
                     await interaction.reply({content: 'Your account is set on private, we we won\'t be able to access your informations.', ephemeral: true});
                 }
+                
+                db.addUser(discordID, memberID, memberType, bungieTag);
+                inf(`New user linked: ${bungieTag}`);
 
-                dbg(`memberID: ${memberID}`);
-                dbg(`memberType: ${memberType}`);
-                dbg(`memberPlateform: ${memberPlateform}`);
-
-                guildData.addUser(discordID, memberID, memberType, bungieTag);
-                guildData.getUsersList();
-
-                await interaction.reply('You linked your account.');
+                await interaction.reply(`You linked your account: ${bungieTag}`);
 
             })
             .catch(error => {
