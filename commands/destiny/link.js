@@ -40,7 +40,8 @@ module.exports = {
                 //console.log(`statusCode: ${res.status}`)
                 //console.log(res.data.Response)
                 if(bungieAPI.isBungieAPIDown(res)) {
-                    
+                    await interaction.reply('Destiny 2 API is down, it might be a maintenance ongoing. Check again later.');
+                    return;
                 };
               })
             .catch(error => {
