@@ -32,7 +32,7 @@ module.exports = {
 
         if(db.isUserExist(discordID)) {
             inf('This user is already registered.');
-            await interaction.reply({content: `Your account is already linked : ${db.getBungieTag(discordID)}`, ephemeral: true});
+            await interaction.reply({content: `Your account is already linked : ${db.getBungieTag(discordID)}.`, ephemeral: true});
             return;
         }
 
