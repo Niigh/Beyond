@@ -37,7 +37,7 @@ module.exports = {
         }
 
         bungieAPI = new BungieAPI();
-        bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${bungieTag}/`)
+        bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${encodeURIComponent(bungieTag)}/`)
             .then(async res => {
                 inf(`Status code: ${res.status}`);
                 //console.log(res.data.Response)
