@@ -23,12 +23,13 @@ module.exports = {
             .addChoice('Warlock', 'Warlock')),
     async execute(interaction) {
         inf(`Command guardian called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
+        await interaction.deferReply();
         const discordID = interaction.user.id;
         const guardianClass = interaction.options.getString('class');
 
         if(!db.isUserExist(discordID)) {
             inf('Discord user didn\'t linked.')
-            await interaction.reply({content: 'Your Bungie Profile isn\'t linked. Please use /link to register your Bungie profile.', ephemeral: true});
+            await interaction.editReply({content: 'Your Bungie Profile isn\'t linked. Please use /link to register your Bungie profile.', ephemeral: true});
             return;
         }
 
@@ -44,12 +45,12 @@ module.exports = {
 
                 if(bungieAPI.isBungieAPIDown(res)) {
                     inf('Bungie API down.')
-                    await interaction.reply({content: 'Destiny 2 API is down, it might be a maintenance ongoing. Check again later.', ephemeral: true});
+                    await interaction.editReply({content: 'Destiny 2 API is down, it might be a maintenance ongoing. Check again later.', ephemeral: true});
                     return;
                 };
 
                 if(res.data.ErrorCode != 1) {
-                    await interaction.reply({content: 'An error occured with your account. Is there a Destiny 2 account connected ?', ephemeral: true});
+                    await interaction.editReply({content: 'An error occured with your account. Is there a Destiny 2 account connected ?', ephemeral: true});
                     return;
                 }
 
@@ -62,12 +63,12 @@ module.exports = {
                         db.addGuardians(db.getBungieTag(discordID), memberId, memberType, charId);
                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
                             .then(async res => {
-                                //console.log(res.data.Response.character);
+                                console.log(res.data.Response.character);
                                 //console.log(res.data.Response.equipment);
 
                                 guardianEmbed = getGuardianEmbed(discordID, res.data.Response);
-                                await interaction.reply({embeds: [guardianEmbed]})
-                                //await interaction.reply('Your guardian\'s stats');
+                                await interaction.editReply({embeds: [guardianEmbed]})
+                                //await interaction.editReply('Your guardian\'s stats');
                             })
                             .catch(error => {
                                 console.error(error);
