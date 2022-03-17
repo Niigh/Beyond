@@ -1,5 +1,6 @@
 /node_modules
 /data
+/img
 package-lock.json
 logfile.log
 .env
