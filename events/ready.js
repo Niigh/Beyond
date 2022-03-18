@@ -1,4 +1,6 @@
 //#region libs
+const { BungieAPI } = require('../lib/bungie-api.js');
+bungieAPI = new BungieAPI();
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../trace.js');
 //#endregion
@@ -15,5 +17,6 @@ module.exports = {
             status: 'PLAYING'
         });
         inf(`Bot presence set`);
-    },
+        bungieAPI.getManifest();
+    }
 };

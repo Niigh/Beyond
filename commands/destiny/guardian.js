@@ -63,8 +63,9 @@ module.exports = {
                         db.addGuardians(db.getBungieTag(discordID), memberId, memberType, charId);
                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
                             .then(async res => {
-                                console.log(res.data.Response.character);
-                                //console.log(res.data.Response.equipment);
+                                //console.log(res.data.Response.character);
+                                //console.log(res.data.Response.equipment.data.items);
+                                
 
                                 guardianEmbed = getGuardianEmbed(discordID, res.data.Response);
                                 await interaction.editReply({embeds: [guardianEmbed]})
