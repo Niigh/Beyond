@@ -40,7 +40,6 @@ module.exports = {
         bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${encodeURIComponent(bungieTag)}/`)
             .then(async res => {
                 inf(`Status code: ${res.status}`);
-                //console.log(res.data.Response)
                 if(bungieAPI.isBungieAPIDown(res)) {
                     inf('Bungie API down.')
                     await interaction.reply({content: 'Destiny 2 API is down, it might be a maintenance ongoing. Check again later.', ephemeral: true});

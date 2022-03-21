@@ -18,5 +18,6 @@ module.exports = {
         });
         inf(`Bot presence set`);
         bungieAPI.getManifest();
+        bungieAPI.refreshManifest();
     }
 };
