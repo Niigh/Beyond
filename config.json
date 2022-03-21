@@ -1,4 +1,5 @@
 {
     "env": "dev",
-    "manifest_path": "./data/manifest.json"
+    "manifest_path": "./data/manifest.json",
+    "database_path": "./data/destiny_database/"
 }
