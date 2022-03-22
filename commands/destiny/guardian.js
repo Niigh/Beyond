@@ -5,7 +5,6 @@ const { BungieAPI } = require('../../lib/bungie-api.js');
 const { getGuardianEmbed } = require('../../lib/embed-message.js');
 
 const db = require('../../lib/userdata.js');
-const { DestinyDatabse } = require('../../lib/destinydata.js');
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
@@ -64,8 +63,6 @@ module.exports = {
                         db.addGuardians(db.getBungieTag(discordID), memberId, memberType, charId);
                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
                             .then(async res => {
-                                const destinyDB = new DestinyDatabse();
-                                destinyDB.listTables();
                                 //console.log(res.data.Response.character);
                                 //console.log(res.data.Response.equipment.data.items);
                                 

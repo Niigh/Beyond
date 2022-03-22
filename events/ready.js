@@ -1,6 +1,9 @@
 //#region libs
 const { BungieAPI } = require('../lib/bungie-api.js');
 bungieAPI = new BungieAPI();
+
+const { DestinyDatabase } = require('../lib/destinydata.js');
+const destinyDB = new DestinyDatabase();
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../trace.js');
 //#endregion
