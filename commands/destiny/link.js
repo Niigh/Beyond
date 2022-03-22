@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const db = require('../../lib/database-management.js');
+const db = require('../../lib/userdata.js');
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
