@@ -2,5 +2,5 @@
     "env": "dev",
     "manifest_path": "./data/manifest.json",
     "database_root_path": "./data/destiny_database/",
-    "database_path": "./data/destiny_database/world_sql_content_f5d265c7cb4dc5794bc2006c58a1f33b/world_sql_content_f5d265c7cb4dc5794bc2006c58a1f33b.content"
+    "database_path": "./data/destiny_database/world_sql_content_c678f85dc29db83c17917435f663c379/world_sql_content_c678f85dc29db83c17917435f663c379.content"
 }

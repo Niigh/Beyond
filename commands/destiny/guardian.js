@@ -4,7 +4,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { BungieAPI } = require('../../lib/bungie-api.js');
 const { getGuardianEmbed } = require('../../lib/embed-message.js');
 
-const db = require('../../lib/userdata.js');
+const userDB = require('../../lib/userdata.js');
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
@@ -27,15 +27,15 @@ module.exports = {
         const discordID = interaction.user.id;
         const guardianClass = interaction.options.getString('class');
 
-        if(!db.isUserExist(discordID)) {
+        if(!userDB.isUserExist(discordID)) {
             inf('Discord user didn\'t linked.')
             await interaction.editReply({content: 'Your Bungie Profile isn\'t linked. Please use /link to register your Bungie profile.', ephemeral: true});
             return;
         }
 
-        const memberId = db.getMemberID(discordID);
-        const memberType = db.getMemberType(discordID);
-        inf(`Requesting bungie profile: ${db.getBungieTag(discordID)} ...`);
+        const memberId = userDB.getMemberID(discordID);
+        const memberType = userDB.getMemberType(discordID);
+        inf(`Requesting bungie profile: ${userDB.getBungieTag(discordID)} ...`);
 
         bungieAPI = new BungieAPI();
         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,200`)
@@ -52,7 +52,7 @@ module.exports = {
                 if(res.data.ErrorCode != 1) {
                     await interaction.editReply({content: 'An error occured with your account. Is there a Destiny 2 account connected ?', ephemeral: true});
                     return;
-                }
+                };
 
                 for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
                     charId = res.data.Response.profile.data.characterIds[i];
@@ -60,20 +60,23 @@ module.exports = {
                     if (character.classType == bungieAPI.getClassID(guardianClass)) {
                         not(`Class: ${bungieAPI.getClass(character.classType)}`);
 
-                        db.addGuardians(db.getBungieTag(discordID), memberId, memberType, charId);
+                        userDB.addGuardians(userDB.getBungieTag(discordID), memberId, memberType, charId);
                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
                             .then(async res => {
-                                //console.log(res.data.Response.character);
-                                //console.log(res.data.Response.equipment.data.items);
-                                
-                                guardianEmbed = getGuardianEmbed(discordID, res.data.Response);
-                                await interaction.editReply({embeds: [guardianEmbed]})
+                                bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,104,202`)
+                                    .then(async resProfile => {
+                                        guardianEmbed = getGuardianEmbed(discordID, res.data.Response, resProfile.data.Response.profileProgression.data.seasonalArtifact.powerBonus);
+                                        await interaction.editReply({embeds: [guardianEmbed]})
+                                    })
+                                    .catch(error => {
+                                        console.error(error);
+                                    });
                             })
                             .catch(error => {
                                 console.error(error);
                             });
-                    }
-                }
+                    };
+                };
             })
             .catch(error => {
                 console.error(error)

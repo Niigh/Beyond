@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const db = require('../../lib/userdata.js');
+const userDB = require('../../lib/userdata.js');
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
@@ -30,9 +30,9 @@ module.exports = {
         const discordID = interaction.user.id;
         const bungieTag = interaction.options.getString('bungie-tag');
 
-        if(db.isUserExist(discordID)) {
+        if(userDB.isUserExist(discordID)) {
             inf('This user is already registered.');
-            await interaction.reply({content: `Your account is already linked : ${db.getBungieTag(discordID)}.`, ephemeral: true});
+            await interaction.reply({content: `Your account is already linked : ${userDB.getBungieTag(discordID)}.`, ephemeral: true});
             return;
         }
 
@@ -69,7 +69,7 @@ module.exports = {
                     await interaction.reply({content: 'Your account is set on private, we we won\'t be able to access your informations.', ephemeral: true});
                 }
                 
-                db.addUser(discordID, memberID, memberType, bungieTag);
+                userDB.addUser(discordID, memberID, memberType, bungieTag);
                 inf(`New user linked: ${bungieTag}`);
 
                 await interaction.reply(`You linked your account: ${bungieTag}`);

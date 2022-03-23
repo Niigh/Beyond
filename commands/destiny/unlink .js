@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const db = require('../../lib/userdata.js');
+const userDB = require('../../lib/userdata.js');
 
 //Trace module
 const {err, wrn, inf, not, dbg} = require('../../trace.js');
@@ -17,14 +17,14 @@ module.exports = {
         inf(`Command unlink called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         const discordID = interaction.user.id;
 
-        if(!db.isUserExist(discordID)) {
+        if(!userDB.isUserExist(discordID)) {
             inf('This user doesn\'t have any linked Bungie profile.');
             await interaction.reply({content: `You don\'t have any linked Bungie profile.`, ephemeral: true});
             return;
         }
 
-        const bungieTag = db.getBungieTag(discordID);
-        db.deleteUser(discordID);
+        const bungieTag = userDB.getBungieTag(discordID);
+        userDB.deleteUser(discordID);
         inf(`User successfully unlinked: ${bungieTag}`);
 
         await interaction.reply(`You unlinked your account: ${bungieTag}`);
