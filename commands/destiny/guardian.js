@@ -71,9 +71,9 @@ module.exports = {
                                             seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
                                         };
                                         guardianEmbed = getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel);
-                                        await interaction.editReply({embeds: [guardianEmbed]})
+                                        await interaction.editReply({embeds: [guardianEmbed]});
                                     })
-                                    .catch(error => {
+                                    .catch(async error => {
                                         err(error.code)
                                         if(error.code == 'ERR_REQUEST_ABORTED') {
                                             await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
@@ -81,7 +81,7 @@ module.exports = {
                                         console.error(error);
                                     });
                             })
-                            .catch(error => {
+                            .catch(async error => {
                                 err(error.code)
                                 if(error.code == 'ERR_REQUEST_ABORTED') {
                                     await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
@@ -91,7 +91,7 @@ module.exports = {
                     };
                 };
             })
-            .catch(error => {
+            .catch(async error => {
                 err(error.code)
                 if(error.code == 'ERR_REQUEST_ABORTED') {
                     await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
