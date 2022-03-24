@@ -59,13 +59,18 @@ module.exports = {
                     character = res.data.Response.characters.data[charId];
                     if (character.classType == bungieAPI.getClassID(guardianClass)) {
                         not(`Class: ${bungieAPI.getClass(character.classType)}`);
-
                         userDB.addGuardians(userDB.getBungieTag(discordID), memberId, memberType, charId);
+
                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
                             .then(async res => {
                                 bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,104,202`)
                                     .then(async resProfile => {
-                                        guardianEmbed = getGuardianEmbed(discordID, res.data.Response, resProfile.data.Response.profileProgression.data.seasonalArtifact.powerBonus);
+                                        const artefactBonus = resProfile.data.Response.profileProgression.data.seasonalArtifact.powerBonus;
+                                        var seasonLevel = resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,false)].level;
+                                        if(seasonLevel>=100) {
+                                            seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
+                                        };
+                                        guardianEmbed = getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel);
                                         await interaction.editReply({embeds: [guardianEmbed]})
                                     })
                                     .catch(error => {
