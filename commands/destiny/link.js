@@ -76,6 +76,10 @@ module.exports = {
 
             })
             .catch(error => {
+                err(error.code)
+                if(error.code == 'ERR_REQUEST_ABORTED') {
+                    await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
+                };
                 console.error(error)
             });
     },
