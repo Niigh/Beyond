@@ -19,8 +19,7 @@
     "winston": "^3.6.0"
   },
   "scripts": {
-    "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ."
   },
   "author": "Nigh",
   "license": "ISC"

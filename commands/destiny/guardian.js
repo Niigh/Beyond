@@ -13,7 +13,7 @@ const {err, wrn, inf, not, dbg} = require('../../trace.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('guardian')
-        .setDescription('Show your guardian\'s stats')
+        .setDescription('Show your guardian\'s equipement and informations.')
         .addStringOption(options =>
             options.setName('class')
             .setDescription('The guardian class you want to get informations for.')
