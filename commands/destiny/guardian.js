@@ -2,7 +2,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
-const { getGuardianEmbed } = require('../../lib/embed-message.js');
+const { getGuardianEmbed, getErrorEmbed } = require('../../lib/embed-message.js');
 
 const userDB = require('../../lib/userdata.js');
 
@@ -75,16 +75,18 @@ module.exports = {
                                     })
                                     .catch(async error => {
                                         err(error.code)
-                                        if(error.code == 'ERR_REQUEST_ABORTED') {
-                                            await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
+                                        if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                                            errorEmbed = getErrorEmbed(error);
+                                            await interaction.editReply({embeds: [errorEmbed]});
                                         };
                                         console.error(error);
                                     });
                             })
                             .catch(async error => {
                                 err(error.code)
-                                if(error.code == 'ERR_REQUEST_ABORTED') {
-                                    await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
+                                if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                                    errorEmbed = getErrorEmbed(error);
+                                    await interaction.editReply({embeds: [errorEmbed]});
                                 };
                                 console.error(error);
                             });
@@ -93,8 +95,9 @@ module.exports = {
             })
             .catch(async error => {
                 err(error.code)
-                if(error.code == 'ERR_REQUEST_ABORTED') {
-                    await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
+                if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                    errorEmbed = getErrorEmbed(error);
+                    await interaction.editReply({embeds: [errorEmbed]});
                 };
                 console.error(error)
             });

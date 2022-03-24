@@ -3,6 +3,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
+const { getErrorEmbed } = require('../../lib/embed-message.js');
+
 const userDB = require('../../lib/userdata.js');
 
 //Trace module
@@ -78,7 +80,8 @@ module.exports = {
             .catch(async error => {
                 err(error.code)
                 if(error.code == 'ERR_REQUEST_ABORTED') {
-                    await interaction.editReply({ content: 'Something went wrong with the command, please try again.', ephemeral: true });
+                    errorEmbed = getErrorEmbed(error);
+                    await interaction.editReply({embeds: [errorEmbed]});
                 };
                 console.error(error)
             });
