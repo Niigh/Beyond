@@ -58,7 +58,7 @@ bot.on ('interactionCreate', async interaction => {
     if (!command) return;
 
     // Bot latency check
-    if(command.data.name === 'ping' || command.data.name === 'shutdown') {
+    if(command.data.name === 'ping') {
         try {
             await command.execute(interaction, bot);
         } catch (error) {
@@ -73,7 +73,7 @@ bot.on ('interactionCreate', async interaction => {
             await command.execute(interaction);
         } catch (error) {
             err(error);
-            await interaction.reply({
+            await interaction.editReply({
                 content: 'The command couldn\'t be executed due to an error.',
                 ephemeral: true
             });

@@ -52,7 +52,7 @@ module.exports = {
                     inf('Wrong Bungie Tag')
                     await interaction.reply({content: 'No Bungie profile found. Are your sure about your Bungie tag ?', ephemeral: true});
                     return;
-                }
+                };
 
                 memberID = res.data.Response[0].membershipId;
                 if(res.data.Response[0].crossSaveOverride==0) {
@@ -68,8 +68,8 @@ module.exports = {
 
                 if(!bungieAPI.isPublicAccount(res.data.Response)) {
                     wrn('Account set on private.');
-                    await interaction.reply({content: 'Your account is set on private, we we won\'t be able to access your informations.', ephemeral: true});
-                }
+                    await interaction.reply({content: 'Your account is set on private, we won\'t be able to access your informations.', ephemeral: true});
+                };
                 
                 userDB.addUser(discordID, memberID, memberType, bungieTag);
                 inf(`New user linked: ${bungieTag}`);

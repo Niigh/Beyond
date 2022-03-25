@@ -21,7 +21,7 @@ module.exports = {
             inf('This user doesn\'t have any linked Bungie profile.');
             await interaction.reply({content: `You don\'t have any linked Bungie profile.`, ephemeral: true});
             return;
-        }
+        };
 
         const bungieTag = userDB.getBungieTag(discordID);
         userDB.deleteUser(discordID);
