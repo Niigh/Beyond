@@ -65,11 +65,6 @@ module.exports = {
                         };
                     };
                 };
-
-                if(!bungieAPI.isPublicAccount(res.data.Response)) {
-                    wrn('Account set on private.');
-                    await interaction.reply({content: 'Your account is set on private, we won\'t be able to access your informations.', ephemeral: true});
-                };
                 
                 userDB.addUser(discordID, memberID, memberType, bungieTag);
                 inf(`New user linked: ${bungieTag}`);
