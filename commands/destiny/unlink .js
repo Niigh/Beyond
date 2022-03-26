@@ -12,7 +12,7 @@ const {err, wrn, inf, not, dbg} = require('../../trace.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('unlink')
-        .setDescription('Unlink you Guardian\'s tag'),
+        .setDescription('Unlink you Guardian\'s tag.'),
     async execute(interaction) {
         inf(`Command unlink called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         const discordID = interaction.user.id;

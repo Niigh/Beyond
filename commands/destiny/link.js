@@ -17,7 +17,7 @@ module.exports = {
         .setDescription('Link you Guardian\'s tag')
         .addStringOption(options =>
             options.setName('bungie-tag')
-            .setDescription('Link your Bungie tag to your Discord account')
+            .setDescription('Link your Bungie tag to your Discord account.')
             .setRequired(true))
         .addStringOption(options =>
             options.setName('plateform')

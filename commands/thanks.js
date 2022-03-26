@@ -10,7 +10,7 @@ const {err, wrn, inf, not, dbg} = require('../trace.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('thanks')
-        .setDescription('Replies with a list of person that helped me through this project'),
+        .setDescription('Replies with a list of person that helped me through this project.'),
     async execute(interaction) {
         helpEmbed = getThanksEmbed();
         inf(`Command thanks called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
