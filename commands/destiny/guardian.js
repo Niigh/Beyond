@@ -32,15 +32,15 @@ module.exports = {
         inf(`Command guardian called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         await interaction.deferReply();
         const discordID = interaction.user.id;
-        const bungieTag = interaction.options.getString('bungie-tag');
         const guardianClass = interaction.options.getString('class');
+        const bungieTag = interaction.options.getString('bungie-tag');
 
         bungieAPI = new BungieAPI();
 
         if(bungieTag==null) {
             if(!userDB.isUserExist(discordID)) {
                 inf('Discord user didn\'t linked.')
-                await interaction.editReply({content: 'Your Bungie Profile isn\'t linked. Please use /link to register your Bungie profile.', ephemeral: true});
+                await interaction.editReply({embeds: [embedBuilder.getNotLinkedErrorEmbed()]});
                 return;
             };
 
@@ -59,7 +59,7 @@ module.exports = {
                     };
 
                     if(res.data.ErrorCode != 1) {
-                        await interaction.editReply({content: 'An error occured with your account. Is there a Destiny 2 account connected ?', ephemeral: true});
+                        await interaction.editReply({embed: embedBuilder.getRequestErrorEmbed(), ephemeral: true});
                         return;
                     };
 
