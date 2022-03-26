@@ -2,7 +2,9 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
-const { getGuardianEmbed, getBungieTagErrorEmbed, getAPIDownEmbed, getPrivateAccountEmbed, getErrorEmbed } = require('../../lib/embed-message.js');
+
+const { EmbedBuilder } = require('../../lib/embed-message.js')
+const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
 
@@ -52,7 +54,7 @@ module.exports = {
 
                     if(bungieAPI.isBungieAPIDown(res)) {
                         inf('Bungie API down.')
-                        await interaction.editReply({embeds: [getAPIDownEmbed()]});
+                        await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
                         return;
                     };
 
@@ -77,7 +79,7 @@ module.exports = {
 
                                             if(resProfile.data.Response.profileProgression.data==undefined) {
                                                 wrn('Account set on private.');
-                                                await interaction.editReply({embeds: [getPrivateAccountEmbed(bungieTag)]});
+                                                await interaction.editReply({embeds: [embedBuilder.getPrivateAccountEmbed(bungieTag)]});
                                                 return;
                                             };
 
@@ -86,14 +88,13 @@ module.exports = {
                                             if(seasonLevel>=100) {
                                                 seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
                                             };
-                                            guardianEmbed = getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel);
-                                            await interaction.editReply({embeds: [guardianEmbed]});
+
+                                            await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel)]});
                                         })
                                         .catch(async error => {
                                             err(error.code)
                                             if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                                                errorEmbed = getErrorEmbed(error);
-                                                await interaction.editReply({embeds: [errorEmbed]});
+                                                await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                                             };
                                             console.error(error);
                                         });
@@ -101,8 +102,7 @@ module.exports = {
                                 .catch(async error => {
                                     err(error.code)
                                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                                        errorEmbed = getErrorEmbed(error);
-                                        await interaction.editReply({embeds: [errorEmbed]});
+                                        await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                                     };
                                     console.error(error);
                                 });
@@ -112,10 +112,9 @@ module.exports = {
                 .catch(async error => {
                     err(error.code)
                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                        errorEmbed = getErrorEmbed(error);
-                        await interaction.editReply({embeds: [errorEmbed]});
+                        await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                     };
-                    console.error(error)
+                    console.error(error);
                 });
         } else {
             bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${encodeURIComponent(bungieTag)}/`)
@@ -124,13 +123,13 @@ module.exports = {
 
                 if(bungieAPI.isBungieAPIDown(res)) {
                     inf('Bungie API down.')
-                    await interaction.editReply({embeds: [getAPIDownEmbed()]});
+                    await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
                     return;
                 };
 
                 if(res.data.Response[0]==undefined) {
                     inf('Wrong Bungie Tag')
-                    await interaction.editReply({embeds: [getBungieTagErrorEmbed()]});
+                    await interaction.editReply({embeds: [embedBuilder.getBungieTagErrorEmbed()]});
                     return;
                 };
 
@@ -167,7 +166,7 @@ module.exports = {
 
                                                 if(resProfile.data.Response.profileProgression.data==undefined) {
                                                     wrn('Account set on private.');
-                                                    await interaction.editReply({embeds: [getPrivateAccountEmbed(bungieTag)]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getPrivateAccountEmbed(bungieTag)]});
                                                     return;
                                                 };
 
@@ -176,14 +175,13 @@ module.exports = {
                                                 if(seasonLevel>=100) {
                                                     seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
                                                 };
-                                                guardianEmbed = getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel, bungieTag);
-                                                await interaction.editReply({embeds: [guardianEmbed]});
+
+                                                await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel, bungieTag)]});
                                             })
                                             .catch(async error => {
                                                 err(error.code)
                                                 if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                                                    errorEmbed = getErrorEmbed(error);
-                                                    await interaction.editReply({embeds: [errorEmbed]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                                                 };
                                                 console.error(error);
                                             });
@@ -191,8 +189,7 @@ module.exports = {
                                     .catch(async error => {
                                         err(error.code)
                                         if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                                            errorEmbed = getErrorEmbed(error);
-                                            await interaction.editReply({embeds: [errorEmbed]});
+                                            await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                                         };
                                         console.error(error);
                                     });
@@ -202,20 +199,18 @@ module.exports = {
                     .catch(async error => {
                         err(error.code)
                         if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                            errorEmbed = getErrorEmbed(error);
-                            await interaction.editReply({embeds: [errorEmbed]});
+                            await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                         };
-                        console.error(error)
+                        console.error(error);
                     });
 
             })
             .catch(async error => {
                 err(error.code)
                 if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
-                    errorEmbed = getErrorEmbed(error);
-                    await interaction.editReply({embeds: [errorEmbed]});
+                    await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                 };
-                console.error(error)
+                console.error(error);
             });
             
         };

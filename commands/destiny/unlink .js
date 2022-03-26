@@ -1,7 +1,8 @@
 //#region libs
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const { BungieAPI } = require('../../lib/bungie-api.js');
+const { EmbedBuilder } = require('../../lib/embed-message.js')
+const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
 
@@ -19,7 +20,7 @@ module.exports = {
 
         if(!userDB.isUserExist(discordID)) {
             inf('This user doesn\'t have any linked Bungie profile.');
-            await interaction.reply({content: `You don\'t have any linked Bungie profile.`, ephemeral: true});
+            await interaction.reply({embeds: [embedBuilder.getAccountUnlinkErrorEmbed()], ephemeral: true});
             return;
         };
 
@@ -27,6 +28,6 @@ module.exports = {
         userDB.deleteUser(discordID);
         inf(`User successfully unlinked: ${bungieTag}`);
 
-        await interaction.reply(`You unlinked your account: ${bungieTag}`);
+        await interaction.reply({embeds: [embedBuilder.getAccountUnlinkedEmbed(bungieTag)], ephemeral: true});
     },
 };

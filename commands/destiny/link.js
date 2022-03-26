@@ -3,7 +3,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const { getErrorEmbed } = require('../../lib/embed-message.js');
+const { EmbedBuilder } = require('../../lib/embed-message.js')
+const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
 
@@ -34,7 +35,7 @@ module.exports = {
 
         if(userDB.isUserExist(discordID)) {
             inf('This user is already registered.');
-            await interaction.reply({content: `Your account is already linked : ${userDB.getBungieTag(discordID)}.`, ephemeral: true});
+            await interaction.reply({embeds: [embedBuilder.getAccountLinkErrorEmbed(discordID)], ephemeral: true});
             return;
         }
 
@@ -44,13 +45,13 @@ module.exports = {
                 inf(`Status code: ${res.status}`);
                 if(bungieAPI.isBungieAPIDown(res)) {
                     inf('Bungie API down.')
-                    await interaction.reply({content: 'Destiny 2 API is down, it might be a maintenance ongoing. Check again later.', ephemeral: true});
+                    await interaction.reply({embeds: [embedBuilder.getAPIDownEmbed()], ephemeral: true});
                     return;
                 };
 
                 if(res.data.Response[0]==undefined) {
                     inf('Wrong Bungie Tag')
-                    await interaction.reply({content: 'No Bungie profile found. Are your sure about your Bungie tag ?', ephemeral: true});
+                    await interaction.reply({embeds: [embedBuilder.getBungieTagErrorEmbed()], ephemeral: true});
                     return;
                 };
 
@@ -69,16 +70,15 @@ module.exports = {
                 userDB.addUser(discordID, memberID, memberType, bungieTag);
                 inf(`New user linked: ${bungieTag}`);
 
-                await interaction.reply(`You linked your account: ${bungieTag}`);
+                await interaction.reply({embeds: [embedBuilder.getAccountLinkedEmbed(bungieTag)]});
 
             })
             .catch(async error => {
                 err(error.code)
-                if(error.code == 'ERR_REQUEST_ABORTED') {
-                    errorEmbed = getErrorEmbed(error);
-                    await interaction.editReply({embeds: [errorEmbed]});
+                if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                    await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
                 };
-                console.error(error)
+                console.error(error);
             });
     },
 };
