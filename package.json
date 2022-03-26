@@ -22,5 +22,5 @@
     "start": "node ."
   },
   "author": "Nigh",
-  "license": "ISC"
+  "license": "GNU Affero General Public License v3.0"
 }
