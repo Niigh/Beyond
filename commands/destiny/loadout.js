@@ -94,12 +94,14 @@ module.exports = {
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Item/${itemInstanceId}/?components=200,300,301,302,304,305,306,308,309,310`)
                                     .then(async res => {
                                         inf(`Status code: ${res.status}`);
+                                        /*
                                         console.log(res.data.Response);
                                         console.log(res.data.Response.perks.data);
                                         console.log(res.data.Response.stats.data);
                                         console.log(res.data.Response.sockets.data);
                                         console.log(res.data.Response.reusablePlugs.data.plugs);
                                         console.log(res.data.Response.plugObjectives.data.objectivesPerPlug);
+                                        */
 
                                     })
                                     .catch(async error => {

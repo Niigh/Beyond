@@ -31,6 +31,7 @@ module.exports = {
     async execute(interaction) {
         inf(`Command guardian called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         await interaction.deferReply();
+        const avatar = interaction.user.avatarURL();
         const discordID = interaction.user.id;
         const guardianClass = interaction.options.getString('class');
         const bungieTag = interaction.options.getString('bungie-tag');
@@ -89,7 +90,7 @@ module.exports = {
                                                 seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
                                             };
 
-                                            await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel)]});
+                                            await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, avatar, res.data.Response, artefactBonus, seasonLevel)]});
                                         })
                                         .catch(async error => {
                                             err(error.code)
@@ -176,7 +177,7 @@ module.exports = {
                                                     seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
                                                 };
 
-                                                await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, res.data.Response, artefactBonus, seasonLevel, bungieTag)]});
+                                                await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, avatar, res.data.Response, artefactBonus, seasonLevel, bungieTag)]});
                                             })
                                             .catch(async error => {
                                                 err(error.code)
