@@ -92,6 +92,7 @@ module.exports = {
 
                                     const itemHash = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemHash;
                                     const itemInstanceId = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemInstanceId;
+                                    const itemState = bungieAPI.getItemState(res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].state);
 
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Item/${itemInstanceId}/?components=200,300,301,302,304,305,306,308,309,310`)
                                     .then(async res => {
@@ -108,23 +109,23 @@ module.exports = {
                                         const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
                                         if(itemSlotID>=0 && itemSlotID<=2) {
                                             not('Weapon embed.');
-                                            await interaction.editReply({embeds: [embedBuilder.getWeaponEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                            await interaction.editReply({embeds: [embedBuilder.getWeaponEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
-                                            await interaction.editReply({embeds: [embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                            await interaction.editReply({embeds: [embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
                                         } else {
                                             switch (itemSlotID) {
                                                 case 8:
                                                     not('Ghost embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
                                                     break;
                                                 case 9:
                                                     not('Sparrow embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
                                                     break;
                                                 case 10:
                                                     not('Ship embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
                                                     break;
                                                 case 11:
                                                     not('Subclass embed.');
@@ -132,7 +133,7 @@ module.exports = {
                                                     break;
                                                 case 13:
                                                     not('Emblem embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
                                                     break;
                                                 default:
                                                     err('This equipement slot doesn\'t exist.');
@@ -141,7 +142,6 @@ module.exports = {
                                                 
                                             };
                                         };
-
                                     })
                                     .catch(async error => {
                                         err(error.code)
