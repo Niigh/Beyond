@@ -49,6 +49,7 @@ module.exports = {
     async execute(interaction) {
         await interaction.deferReply();
         const discordID = interaction.user.id;
+        const avatar = interaction.user.avatarURL();
         const guardianClass = interaction.options.getString('class');
         const itemSlot = interaction.options.getString('item-slot');
         const bungieTag = interaction.options.getString('bungie-tag');
@@ -89,19 +90,57 @@ module.exports = {
                                 .then(async res => {
                                     inf(`Status code: ${res.status}`);
 
+                                    const itemHash = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemHash;
                                     const itemInstanceId = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemInstanceId;
 
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Item/${itemInstanceId}/?components=200,300,301,302,304,305,306,308,309,310`)
                                     .then(async res => {
                                         inf(`Status code: ${res.status}`);
                                         /*
-                                        console.log(res.data.Response);
+                                        
                                         console.log(res.data.Response.perks.data);
                                         console.log(res.data.Response.stats.data);
                                         console.log(res.data.Response.sockets.data);
                                         console.log(res.data.Response.reusablePlugs.data.plugs);
                                         console.log(res.data.Response.plugObjectives.data.objectivesPerPlug);
                                         */
+
+                                        const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
+                                        if(itemSlotID>=0 && itemSlotID<=2) {
+                                            not('Weapon embed.');
+                                            await interaction.editReply({embeds: [embedBuilder.getWeaponEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                        } else if (itemSlotID>=3 && itemSlotID<=7) {
+                                            not('Armor embed.');
+                                            await interaction.editReply({embeds: [embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                        } else {
+                                            switch (itemSlotID) {
+                                                case 8:
+                                                    not('Ghost embed.');
+                                                    await interaction.editReply({embeds: [embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    break;
+                                                case 9:
+                                                    not('Sparrow embed.');
+                                                    await interaction.editReply({embeds: [embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    break;
+                                                case 10:
+                                                    not('Ship embed.');
+                                                    await interaction.editReply({embeds: [embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    break;
+                                                case 11:
+                                                    not('Subclass embed.');
+                                                    await interaction.editReply({embeds: [embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    break;
+                                                case 13:
+                                                    not('Emblem embed.');
+                                                    await interaction.editReply({embeds: [embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    break;
+                                                default:
+                                                    err('This equipement slot doesn\'t exist.');
+                                                    await interaction.editReply({embeds: [embedBuilder.getErrorEmbed({code: 'SLOT_ERROR'})]});
+                                                    break;
+                                                
+                                            };
+                                        };
 
                                     })
                                     .catch(async error => {
@@ -111,19 +150,6 @@ module.exports = {
                                         };
                                         console.error(error);
                                     });
-
-
-                                    if(bungieAPI.getEquippedSlot(itemSlot)>=0 && bungieAPI.getEquippedSlot(itemSlot)<=2) {
-                                        return;
-                                        //await interaction.editReply({embeds: [embedBuilder.getWeaponEmbed(discordID, res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)])]});
-                                    } else if (bungieAPI.getEquippedSlot(itemSlot)>=3 && bungieAPI.getEquippedSlot(itemSlot)<=7) {
-                                        return;
-                                        //await interaction.editReply({embeds: [embedBuilder.getArmorEmbed(discordID, res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)])]});
-                                    } else {
-
-                                    };
-
-                            
                                 })
                                 .catch(async error => {
                                     err(error.code)

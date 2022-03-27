@@ -31,8 +31,8 @@ module.exports = {
     async execute(interaction) {
         inf(`Command guardian called by ${interaction.user.tag} (ID: ${interaction.user.id}) in channel ID <${interaction.channel.id}>`);
         await interaction.deferReply();
-        const avatar = interaction.user.avatarURL();
         const discordID = interaction.user.id;
+        const avatar = interaction.user.avatarURL();
         const guardianClass = interaction.options.getString('class');
         const bungieTag = interaction.options.getString('bungie-tag');
 
