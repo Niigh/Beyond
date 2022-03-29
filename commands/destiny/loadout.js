@@ -94,7 +94,7 @@ module.exports = {
                                     const itemInstanceId = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemInstanceId;
                                     const itemState = bungieAPI.getItemState(res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].state);
                                     var emblemMetrics = undefined;
-                                    if(bungieAPI.getEquippedSlot(itemSlot) == 13) {
+                                    if(bungieAPI.getEquippedSlot(itemSlot) == 13 && res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash != undefined) {
                                         emblemMetrics = 
                                         [res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash, 
                                         res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricObjective]
@@ -107,10 +107,12 @@ module.exports = {
                                         const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
                                         if(itemSlotID>=0 && itemSlotID<=2) {
                                             not('Weapon embed.');
-                                            await interaction.editReply({embeds: [embedBuilder.getWeaponEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
+                                            const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                            await interaction.editReply({embeds: [weaponEmbed]});
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
-                                            await interaction.editReply({embeds: [embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
+                                            const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                            await interaction.editReply({embeds: [armorEmbed]});
                                         } else {
                                             switch (itemSlotID) {
                                                 case 8:
@@ -120,19 +122,23 @@ module.exports = {
                                                     break;
                                                 case 9:
                                                     not('Sparrow embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
+                                                    const sparrowEmbed = embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                                    await interaction.editReply({embeds: [sparrowEmbed]});
                                                     break;
                                                 case 10:
                                                     not('Ship embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
+                                                    const shipEmbed = embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                                    await interaction.editReply({embeds: [shipEmbed]});
                                                     break;
                                                 case 11:
                                                     not('Subclass embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash)]});
+                                                    subclassEmbed = embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash);
+                                                    await interaction.editReply({embeds: [subclassEmbed]});
                                                     break;
                                                 case 13:
                                                     not('Emblem embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash, itemState, emblemMetrics)]});
+                                                    const emblemEmbed = embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash, itemState, emblemMetrics);
+                                                    await interaction.editReply({embeds: [emblemEmbed]});
                                                     break;
                                                 default:
                                                     err('This equipement slot doesn\'t exist.');
