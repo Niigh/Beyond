@@ -1,6 +1,7 @@
 /node_modules
 /data
 /img
+/lib/parse-perks.js
 package-lock.json
 logfile.log
 .env

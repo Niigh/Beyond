@@ -117,7 +117,8 @@ module.exports = {
                                             switch (itemSlotID) {
                                                 case 8:
                                                     not('Ghost embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
+                                                    const ghostEmbed = embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                                    await interaction.editReply({embeds: [ghostEmbed]});
                                                     break;
                                                 case 9:
                                                     not('Sparrow embed.');

@@ -12,6 +12,7 @@ const {err, wrn, inf, not, dbg} = require('./trace.js');
 
 const commands = [];
 const help = {};
+const team = {};
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 const destinyCommandFiles = fs.readdirSync('./commands/destiny').filter(file => file.endsWith('.js'));
 not(`Command files list: ${commandFiles}`);
@@ -19,6 +20,7 @@ not(`Command files list: ${commandFiles}`);
 //IDs
 const clientId = String(process.env.CLIENT_ID);
 
+//Help file
 help["Destiny"] = [];
 for (const file of destinyCommandFiles) {
     inf('Destiny Commands')
