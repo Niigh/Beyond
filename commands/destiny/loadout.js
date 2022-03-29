@@ -93,18 +93,16 @@ module.exports = {
                                     const itemHash = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemHash;
                                     const itemInstanceId = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemInstanceId;
                                     const itemState = bungieAPI.getItemState(res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].state);
+                                    var emblemMetrics = undefined;
+                                    if(bungieAPI.getEquippedSlot(itemSlot) == 13) {
+                                        emblemMetrics = 
+                                        [res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash, 
+                                        res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricObjective]
+                                    };
 
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Item/${itemInstanceId}/?components=200,300,301,302,304,305,306,308,309,310`)
                                     .then(async res => {
                                         inf(`Status code: ${res.status}`);
-                                        /*
-                                        
-                                        console.log(res.data.Response.perks.data);
-                                        console.log(res.data.Response.stats.data);
-                                        console.log(res.data.Response.sockets.data);
-                                        console.log(res.data.Response.reusablePlugs.data.plugs);
-                                        console.log(res.data.Response.plugObjectives.data.objectivesPerPlug);
-                                        */
 
                                         const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
                                         if(itemSlotID>=0 && itemSlotID<=2) {
@@ -134,7 +132,7 @@ module.exports = {
                                                     break;
                                                 case 13:
                                                     not('Emblem embed.');
-                                                    await interaction.editReply({embeds: [embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash, itemState)]});
+                                                    await interaction.editReply({embeds: [embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash, itemState, emblemMetrics)]});
                                                     break;
                                                 default:
                                                     err('This equipement slot doesn\'t exist.');
