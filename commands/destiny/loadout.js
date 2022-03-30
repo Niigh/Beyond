@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const { EmbedBuilder } = require('../../lib/embed-message.js')
+const { EmbedBuilder } = require('../../lib/embed-message.js');
 const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
@@ -58,10 +58,10 @@ module.exports = {
 
         if(bungieTag==null) {
             if(!userDB.isUserExist(discordID)) {
-                inf('Discord user didn\'t linked.')
+                inf('Discord user didn\'t linked.');
                 await interaction.editReply({embeds: [embedBuilder.getNotLinkedErrorEmbed()]});
                 return;
-            };
+            }
 
             const memberId = userDB.getMemberID(discordID);
             const memberType = userDB.getMemberType(discordID);
@@ -70,15 +70,15 @@ module.exports = {
             bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,200`)
                 .then(async res => {
                     if(bungieAPI.isBungieAPIDown(res)) {
-                        inf('Bungie API down.')
+                        inf('Bungie API down.');
                         await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
                         return;
-                    };
+                    }
 
                     if(res.data.ErrorCode != 1) {
                         await interaction.editReply({embed: embedBuilder.getRequestErrorEmbed(), ephemeral: true});
                         return;
-                    };
+                    }
 
                     for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
                         charId = res.data.Response.profile.data.characterIds[i];
@@ -87,18 +87,18 @@ module.exports = {
                             not(`Class: ${bungieAPI.getClass(character.classType)}`);
 
                             bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
-                                .then(async res => {
+                                .then(async (res, bungieAPI, interaction, console) => {
                                     inf(`Status code: ${res.status}`);
 
                                     const itemHash = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemHash;
                                     const itemInstanceId = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemInstanceId;
                                     const itemState = bungieAPI.getItemState(res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].state);
-                                    var emblemMetrics = undefined;
+                                    var emblemMetrics;
                                     if(bungieAPI.getEquippedSlot(itemSlot) == 13 && res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash != undefined) {
                                         emblemMetrics = 
                                         [res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash, 
-                                        res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricObjective]
-                                    };
+                                        res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricObjective];
+                                    }
 
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Item/${itemInstanceId}/?components=200,300,301,302,304,305,306,308,309,310`)
                                     .then(async res => {
@@ -107,7 +107,7 @@ module.exports = {
                                         const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
                                         if(itemSlotID>=0 && itemSlotID<=2) {
                                             not('Weapon embed.');
-                                            const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                            const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
                                             await interaction.editReply({embeds: [weaponEmbed]});
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
@@ -132,12 +132,12 @@ module.exports = {
                                                     break;
                                                 case 11:
                                                     not('Subclass embed.');
-                                                    subclassEmbed = embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash);
+                                                    const subclassEmbed = embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash);
                                                     await interaction.editReply({embeds: [subclassEmbed]});
                                                     break;
                                                 case 13:
                                                     not('Emblem embed.');
-                                                    const emblemEmbed = embedBuilder.getEmblemEmbed(discordID, avatar, res.data.Response, itemHash, itemState, emblemMetrics);
+                                                    const emblemEmbed = embedBuilder.getEmblemEmbed(discordID, avatar, itemHash, itemState, emblemMetrics);
                                                     await interaction.editReply({embeds: [emblemEmbed]});
                                                     break;
                                                 default:
@@ -145,26 +145,26 @@ module.exports = {
                                                     await interaction.editReply({embeds: [embedBuilder.getErrorEmbed({code: 'SLOT_ERROR'})]});
                                                     break;
                                                 
-                                            };
-                                        };
+                                            }
+                                        }
                                     })
                                     .catch(async error => {
-                                        err(error.code)
+                                        err(error.code);
                                         if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                             await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                                        };
+                                        }
                                         console.error(error);
                                     });
                                 })
-                                .catch(async error => {
-                                    err(error.code)
+                                .catch(async (error, interaction, console) => {
+                                    err(error.code);
                                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                         await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                                    };
+                                    }
                                     console.error(error);
                                 });
-                        };
-                    };
+                        }
+                    }
 
 
 
@@ -173,14 +173,14 @@ module.exports = {
 
                 })
                 .catch(async error => {
-                    err(error.code)
+                    err(error.code);
                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                         await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                    };
+                    }
                     console.error(error);
                 });
         } else {
 
-        };
+        }
     },
 };

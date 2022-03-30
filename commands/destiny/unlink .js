@@ -1,7 +1,7 @@
 //#region libs
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const { EmbedBuilder } = require('../../lib/embed-message.js')
+const { EmbedBuilder } = require('../../lib/embed-message.js');
 const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
@@ -22,7 +22,7 @@ module.exports = {
             inf('This user doesn\'t have any linked Bungie profile.');
             await interaction.reply({embeds: [embedBuilder.getAccountUnlinkErrorEmbed()], ephemeral: true});
             return;
-        };
+        }
 
         const bungieTag = userDB.getBungieTag(discordID);
         userDB.deleteUser(discordID);

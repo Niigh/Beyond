@@ -2,6 +2,8 @@
 /data
 /img
 /lib/parse-perks.js
+jsconfig.json
 package-lock.json
 logfile.log
 .env
+.jshintrc

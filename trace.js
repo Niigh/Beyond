@@ -14,7 +14,7 @@ if (fs.existsSync('./logfile.log')) {
     try {
         fs.unlinkSync('./logfile.log');
     } catch(err) {
-        console.error(err)
+        console.error(err);
     }
 }
 //#endregion
@@ -38,7 +38,7 @@ const traceConfig = {
         logFormat,
     ),
     exitOnError: false,
-}
+};
 
 /*env = [dev | prod]*/
 if (env === 'prod') {

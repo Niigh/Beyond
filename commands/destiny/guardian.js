@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const { EmbedBuilder } = require('../../lib/embed-message.js')
+const { EmbedBuilder } = require('../../lib/embed-message.js');
 const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
@@ -40,10 +40,10 @@ module.exports = {
 
         if(bungieTag==null) {
             if(!userDB.isUserExist(discordID)) {
-                inf('Discord user didn\'t linked.')
+                inf('Discord user didn\'t linked.');
                 await interaction.editReply({embeds: [embedBuilder.getNotLinkedErrorEmbed()]});
                 return;
-            };
+            }
 
             const memberId = userDB.getMemberID(discordID);
             const memberType = userDB.getMemberType(discordID);
@@ -54,15 +54,15 @@ module.exports = {
                     inf(`Status code: ${res.status}`);
 
                     if(bungieAPI.isBungieAPIDown(res)) {
-                        inf('Bungie API down.')
+                        inf('Bungie API down.');
                         await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
                         return;
-                    };
+                    }
 
                     if(res.data.ErrorCode != 1) {
                         await interaction.editReply({embed: embedBuilder.getRequestErrorEmbed(), ephemeral: true});
                         return;
-                    };
+                    }
 
                     for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
                         charId = res.data.Response.profile.data.characterIds[i];
@@ -72,7 +72,7 @@ module.exports = {
                             userDB.addGuardians(userDB.getBungieTag(discordID), memberId, memberType, charId);
 
                             bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
-                                .then(async res => {
+                                .then(async (res, bungieAPI, interaction, charId, console) => {
                                     inf(`Status code: ${res.status}`);
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,104,202`)
                                         .then(async resProfile => {
@@ -82,39 +82,39 @@ module.exports = {
                                                 wrn('Account set on private.');
                                                 await interaction.editReply({embeds: [embedBuilder.getPrivateAccountEmbed(bungieTag)]});
                                                 return;
-                                            };
+                                            }
 
                                             const artefactBonus = resProfile.data.Response.profileProgression.data.seasonalArtifact.powerBonus;
                                             var seasonLevel = resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,false)].level;
                                             if(seasonLevel>=100) {
                                                 seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
-                                            };
+                                            }
 
                                             await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, avatar, res.data.Response, artefactBonus, seasonLevel)]});
                                         })
                                         .catch(async error => {
-                                            err(error.code)
+                                            err(error.code);
                                             if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                                 await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                                            };
+                                            }
                                             console.error(error);
                                         });
                                 })
-                                .catch(async error => {
-                                    err(error.code)
+                                .catch(async (error, interaction, console) => {
+                                    err(error.code);
                                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                         await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                                    };
+                                    }
                                     console.error(error);
                                 });
-                        };
-                    };
+                        }
+                    }
                 })
                 .catch(async error => {
-                    err(error.code)
+                    err(error.code);
                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                         await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                    };
+                    }
                     console.error(error);
                 });
         } else {
@@ -123,28 +123,29 @@ module.exports = {
                 inf(`Status code: ${res.status}`);
 
                 if(bungieAPI.isBungieAPIDown(res)) {
-                    inf('Bungie API down.')
+                    inf('Bungie API down.');
                     await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
                     return;
-                };
+                }
 
                 if(res.data.Response[0]==undefined) {
-                    inf('Wrong Bungie Tag')
+                    inf('Wrong Bungie Tag');
                     await interaction.editReply({embeds: [embedBuilder.getBungieTagErrorEmbed()]});
                     return;
-                };
+                }
 
                 const memberId = res.data.Response[0].membershipId;
+                var memberType;
                 if(res.data.Response[0].crossSaveOverride==0) {
-                    var memberType = res.data.Response[0].membershipType;
+                    memberType = res.data.Response[0].membershipType;
                 } else {
-                    for (type of res.data.Response) {
+                    for (const type of res.data.Response) {
                         if (type.crossSaveOverride==type.membershipType) {
                             memberType = type.membershipType;
                             break;
-                        };
-                    };
-                };
+                        }
+                    }
+                }
 
                 inf(`Requesting bungie profile: ${bungieTag} ...`);
 
@@ -159,7 +160,7 @@ module.exports = {
                                 not(`Class: ${bungieAPI.getClass(character.classType)}`);
 
                                 bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
-                                    .then(async res => {
+                                    .then(async (res, bungieAPI, memberType, interaction, charId, console) => {
                                         inf(`Status code: ${res.status}`);
                                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,104,202`)
                                             .then(async resProfile => {
@@ -169,51 +170,51 @@ module.exports = {
                                                     wrn('Account set on private.');
                                                     await interaction.editReply({embeds: [embedBuilder.getPrivateAccountEmbed(bungieTag)]});
                                                     return;
-                                                };
+                                                }
 
                                                 const artefactBonus = resProfile.data.Response.profileProgression.data.seasonalArtifact.powerBonus;
                                                 var seasonLevel = resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,false)].level;
                                                 if(seasonLevel>=100) {
                                                     seasonLevel = 100 + resProfile.data.Response.characterProgressions.data[charId].progressions[bungieAPI.getSeasonPassHash(16,true)].level;
-                                                };
+                                                }
 
                                                 await interaction.editReply({embeds: [embedBuilder.getGuardianEmbed(discordID, avatar, res.data.Response, artefactBonus, seasonLevel, bungieTag)]});
                                             })
                                             .catch(async error => {
-                                                err(error.code)
+                                                err(error.code);
                                                 if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                                     await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                                                };
+                                                }
                                                 console.error(error);
                                             });
                                     })
-                                    .catch(async error => {
-                                        err(error.code)
+                                    .catch(async (error, interaction, console) => {
+                                        err(error.code);
                                         if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                             await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                                        };
+                                        }
                                         console.error(error);
                                     });
-                            };
-                        };
+                            }
+                        }
                     })
                     .catch(async error => {
-                        err(error.code)
+                        err(error.code);
                         if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                             await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                        };
+                        }
                         console.error(error);
                     });
 
             })
             .catch(async error => {
-                err(error.code)
+                err(error.code);
                 if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                     await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                };
+                }
                 console.error(error);
             });
             
-        };
+        }
     },
 };

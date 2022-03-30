@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { BungieAPI } = require('../../lib/bungie-api.js');
 
-const { EmbedBuilder } = require('../../lib/embed-message.js')
+const { EmbedBuilder } = require('../../lib/embed-message.js');
 const embedBuilder = new EmbedBuilder();
 
 const userDB = require('../../lib/userdata.js');
@@ -44,28 +44,28 @@ module.exports = {
             .then(async res => {
                 inf(`Status code: ${res.status}`);
                 if(bungieAPI.isBungieAPIDown(res)) {
-                    inf('Bungie API down.')
+                    inf('Bungie API down.');
                     await interaction.reply({embeds: [embedBuilder.getAPIDownEmbed()], ephemeral: true});
                     return;
-                };
+                }
 
                 if(res.data.Response[0]==undefined) {
-                    inf('Wrong Bungie Tag')
+                    inf('Wrong Bungie Tag');
                     await interaction.reply({embeds: [embedBuilder.getBungieTagErrorEmbed()], ephemeral: true});
                     return;
-                };
+                }
 
                 memberID = res.data.Response[0].membershipId;
                 if(res.data.Response[0].crossSaveOverride==0) {
                     memberType = res.data.Response[0].membershipType;
                 } else {
-                    for (type of res.data.Response) {
+                    for (const type of res.data.Response) {
                         if (type.crossSaveOverride==type.membershipType) {
                             memberType = type.membershipType;
                             break;
-                        };
-                    };
-                };
+                        }
+                    }
+                }
                 
                 userDB.addUser(discordID, memberID, memberType, bungieTag);
                 inf(`New user linked: ${bungieTag}`);
@@ -74,10 +74,10 @@ module.exports = {
 
             })
             .catch(async error => {
-                err(error.code)
+                err(error.code);
                 if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                     await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
-                };
+                }
                 console.error(error);
             });
     },

@@ -2,7 +2,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const team = require('../data/team.json');
-const { EmbedBuilder } = require('../lib/embed-message.js')
+const { EmbedBuilder } = require('../lib/embed-message.js');
 const embedBuilder = new EmbedBuilder();
 
 //Trace module
