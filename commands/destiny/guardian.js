@@ -72,7 +72,7 @@ module.exports = {
                             userDB.addGuardians(userDB.getBungieTag(discordID), memberId, memberType, charId);
 
                             bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
-                                .then(async (res, bungieAPI, interaction, charId, console) => {
+                                .then(async res => {
                                     inf(`Status code: ${res.status}`);
                                     bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,104,202`)
                                         .then(async resProfile => {
@@ -100,7 +100,7 @@ module.exports = {
                                             console.error(error);
                                         });
                                 })
-                                .catch(async (error, interaction, console) => {
+                                .catch(async error => {
                                     err(error.code);
                                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                         await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
@@ -160,7 +160,7 @@ module.exports = {
                                 not(`Class: ${bungieAPI.getClass(character.classType)}`);
 
                                 bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
-                                    .then(async (res, bungieAPI, memberType, interaction, charId, console) => {
+                                    .then(async res => {
                                         inf(`Status code: ${res.status}`);
                                         bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,104,202`)
                                             .then(async resProfile => {
@@ -188,7 +188,7 @@ module.exports = {
                                                 console.error(error);
                                             });
                                     })
-                                    .catch(async (error, interaction, console) => {
+                                    .catch(async error => {
                                         err(error.code);
                                         if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                             await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});

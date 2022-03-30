@@ -87,7 +87,7 @@ module.exports = {
                             not(`Class: ${bungieAPI.getClass(character.classType)}`);
 
                             bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
-                                .then(async (res, bungieAPI, interaction, console) => {
+                                .then(async res => {
                                     inf(`Status code: ${res.status}`);
 
                                     const itemHash = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemHash;
@@ -156,7 +156,7 @@ module.exports = {
                                         console.error(error);
                                     });
                                 })
-                                .catch(async (error, interaction, console) => {
+                                .catch(async error => {
                                     err(error.code);
                                     if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
                                         await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
