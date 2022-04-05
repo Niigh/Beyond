@@ -36,7 +36,7 @@ module.exports = {
         const guardianClass = interaction.options.getString('class');
         const bungieTag = interaction.options.getString('bungie-tag');
 
-        bungieAPI = new BungieAPI();
+        const bungieAPI = new BungieAPI();
 
         if(bungieTag==null) {
             if(!userDB.isUserExist(discordID)) {
@@ -65,8 +65,8 @@ module.exports = {
                     }
 
                     for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
-                        charId = res.data.Response.profile.data.characterIds[i];
-                        character = res.data.Response.characters.data[charId];
+                        const charId = res.data.Response.profile.data.characterIds[i];
+                        const character = res.data.Response.characters.data[charId];
                         if (character.classType == bungieAPI.getClassID(guardianClass)) {
                             not(`Class: ${bungieAPI.getClass(character.classType)}`);
                             userDB.addGuardians(userDB.getBungieTag(discordID), memberId, memberType, charId);
@@ -154,8 +154,8 @@ module.exports = {
                         inf(`Status code: ${res.status}`);
 
                         for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
-                            charId = res.data.Response.profile.data.characterIds[i];
-                            character = res.data.Response.characters.data[charId];
+                            const charId = res.data.Response.profile.data.characterIds[i];
+                            const character = res.data.Response.characters.data[charId];
                             if (character.classType == bungieAPI.getClassID(guardianClass)) {
                                 not(`Class: ${bungieAPI.getClass(character.classType)}`);
 

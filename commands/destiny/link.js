@@ -39,7 +39,8 @@ module.exports = {
             return;
         }
 
-        bungieAPI = new BungieAPI();
+        const bungieAPI = new BungieAPI();
+
         bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${encodeURIComponent(bungieTag)}/`)
             .then(async res => {
                 inf(`Status code: ${res.status}`);
@@ -55,7 +56,8 @@ module.exports = {
                     return;
                 }
 
-                memberID = res.data.Response[0].membershipId;
+                const memberID = res.data.Response[0].membershipId;
+                var memberType;
                 if(res.data.Response[0].crossSaveOverride==0) {
                     memberType = res.data.Response[0].membershipType;
                 } else {
