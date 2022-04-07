@@ -1,7 +1,13 @@
 //#region libs
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
+const { MessageAttachment } = require('discord.js');
+const Canvas = require('canvas');
+
 const { BungieAPI } = require('../../lib/bungie-api.js');
+
+const { DestinyDatabase } = require('../../lib/destinydata.js');
+const destinyDB = new DestinyDatabase();
 
 const { EmbedBuilder } = require('../../lib/embed-message.js');
 const embedBuilder = new EmbedBuilder();
@@ -67,8 +73,10 @@ module.exports = {
             const memberType = userDB.getMemberType(discordID);
             inf(`Requesting bungie profile: ${userDB.getBungieTag(discordID)} ...`);
 
-            bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,200`)
+            bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,103,200`)
                 .then(async res => {
+                    inf(`Status code: ${res.status}`);
+
                     if(bungieAPI.isBungieAPIDown(res)) {
                         inf('Bungie API down.');
                         await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
@@ -79,6 +87,8 @@ module.exports = {
                         await interaction.editReply({embed: embedBuilder.getRequestErrorEmbed(), ephemeral: true});
                         return;
                     }
+
+                    //console.log(res.data.Response.profileCurrencies);
 
                     for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
                         const charId = res.data.Response.profile.data.characterIds[i];
@@ -104,44 +114,82 @@ module.exports = {
                                     .then(async res => {
                                         inf(`Status code: ${res.status}`);
 
+                                        // Thumbail
+                                        destinyDB.loadDB();
+                                        const item = destinyDB.getDetailedEquippedItem(itemHash);
+
+                                        const ornement = destinyDB.getWeaponOrnement(res.data.Response.sockets.data.sockets);
+                                        destinyDB.closeDB();
+
+                                        const canvas = Canvas.createCanvas(96, 96);
+                                        const context = canvas.getContext('2d');
+                                        if(ornement != undefined && ornement.displayProperties.name != 'Default Ornament') {
+                                            if(ornement.displayProperties.name != 'Default Ornament') {
+                                                const backgroundOrnement = await Canvas.loadImage(bungieAPI.buildURLAsset(ornement.displayProperties.icon));
+                                                context.drawImage(backgroundOrnement, 0, 0, canvas.width, canvas.height);
+                                            }
+                                        } else {
+                                            const background = await Canvas.loadImage(bungieAPI.buildURLAsset(item.displayProperties.icon));
+                                            context.drawImage(background, 0, 0, canvas.width, canvas.height);
+                                        }
+                                        
+                                        // Masterwork
+                                        if(itemState.includes('Masterwork')) {
+                                            const masterwork = await Canvas.loadImage('./img/icons/misc/Masterwork.png');
+                                            context.drawImage(masterwork, 0, 0, 96, 96);
+                                        }
+                                        // Watermark
+                                        const watermark = await Canvas.loadImage(bungieAPI.buildURLAsset(item.quality.displayVersionWatermarkIcons));
+                                        context.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+
+                                        const thumbail = new MessageAttachment(canvas.toBuffer(), 'itemThumbail.png');
+
                                         const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
                                         if(itemSlotID>=0 && itemSlotID<=2) {
                                             not('Weapon embed.');
+
                                             const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
-                                            await interaction.editReply({embeds: [weaponEmbed]});
+                                            await interaction.editReply({embeds: [weaponEmbed], files: [thumbail]});
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
+
                                             const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
-                                            await interaction.editReply({embeds: [armorEmbed]});
+                                            await interaction.editReply({embeds: [armorEmbed], files: [thumbail]});
                                         } else {
                                             switch (itemSlotID) {
                                                 case 8:
                                                     not('Ghost embed.');
+
                                                     const ghostEmbed = embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
-                                                    await interaction.editReply({embeds: [ghostEmbed]});
+                                                    await interaction.editReply({embeds: [ghostEmbed], files: [thumbail]});
                                                     break;
                                                 case 9:
                                                     not('Sparrow embed.');
+
                                                     const sparrowEmbed = embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
-                                                    await interaction.editReply({embeds: [sparrowEmbed]});
+                                                    await interaction.editReply({embeds: [sparrowEmbed], files: [thumbail]});
                                                     break;
                                                 case 10:
                                                     not('Ship embed.');
+
                                                     const shipEmbed = embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
-                                                    await interaction.editReply({embeds: [shipEmbed]});
+                                                    await interaction.editReply({embeds: [shipEmbed], files: [thumbail]});
                                                     break;
                                                 case 11:
                                                     not('Subclass embed.');
+
                                                     const subclassEmbed = embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash);
                                                     await interaction.editReply({embeds: [subclassEmbed]});
                                                     break;
                                                 case 13:
                                                     not('Emblem embed.');
+
                                                     const emblemEmbed = embedBuilder.getEmblemEmbed(discordID, avatar, itemHash, itemState, emblemMetrics);
                                                     await interaction.editReply({embeds: [emblemEmbed]});
                                                     break;
                                                 default:
                                                     err('This equipement slot doesn\'t exist.');
+
                                                     await interaction.editReply({embeds: [embedBuilder.getErrorEmbed({code: 'SLOT_ERROR'})]});
                                                     break;
                                                 
