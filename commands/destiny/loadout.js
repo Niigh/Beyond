@@ -52,10 +52,10 @@ module.exports = {
             .setDescription('The guardian you want to get informations for. Leave empty to get your own informations.')
             .setRequired(false))
         .addStringOption(option =>
-            option.setName('version')
+            option.setName('display')
             .setDescription('The amount of informations you want for your weapon/armor (it\'s ignored for your other stuff).')
             .setRequired(false)
-            .addChoice('Detailed', 'Detailed')),
+            .addChoice('Extended', 'Extended')),
 
     async execute(interaction) {
         await interaction.deferReply();
