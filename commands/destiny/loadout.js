@@ -50,7 +50,12 @@ module.exports = {
         .addStringOption(option =>
             option.setName('bungie-tag')
             .setDescription('The guardian you want to get informations for. Leave empty to get your own informations.')
-            .setRequired(false)),
+            .setRequired(false))
+        .addStringOption(option =>
+            option.setName('version')
+            .setDescription('The amount of informations you want for your weapon/armor (it\'s ignored for your other stuff).')
+            .setRequired(false)
+            .addChoice('Detailed', 'Detailed')),
 
     async execute(interaction) {
         await interaction.deferReply();
@@ -59,6 +64,7 @@ module.exports = {
         const guardianClass = interaction.options.getString('class');
         const itemSlot = interaction.options.getString('item-slot');
         const bungieTag = interaction.options.getString('bungie-tag');
+        const version = interaction.options.getString('version');
 
         const bungieAPI = new BungieAPI();
 
@@ -148,7 +154,7 @@ module.exports = {
                                         if(itemSlotID>=0 && itemSlotID<=2) {
                                             not('Weapon embed.');
 
-                                            const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
+                                            const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState, version);
                                             await interaction.editReply({embeds: [weaponEmbed], files: [thumbail]});
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
