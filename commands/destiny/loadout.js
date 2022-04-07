@@ -48,14 +48,14 @@ module.exports = {
             .addChoice('Ship', 'Ship')
             .addChoice('Emblem', 'Emblem'))
         .addStringOption(option =>
-            option.setName('bungie-tag')
-            .setDescription('The guardian you want to get informations for. Leave empty to get your own informations.')
-            .setRequired(false))
-        .addStringOption(option =>
             option.setName('display')
             .setDescription('The amount of informations you want for your weapon/armor (it\'s ignored for your other stuff).')
             .setRequired(false)
-            .addChoice('Extended', 'Extended')),
+            .addChoice('Extended', 'Extended'))
+        .addStringOption(option =>
+            option.setName('bungie-tag')
+            .setDescription('The guardian you want to get informations for. Leave empty to get your own informations.')
+            .setRequired(false)),
 
     async execute(interaction) {
         await interaction.deferReply();
@@ -63,8 +63,8 @@ module.exports = {
         const avatar = interaction.user.avatarURL();
         const guardianClass = interaction.options.getString('class');
         const itemSlot = interaction.options.getString('item-slot');
+        const display = interaction.options.getString('display');
         const bungieTag = interaction.options.getString('bungie-tag');
-        const version = interaction.options.getString('version');
 
         const bungieAPI = new BungieAPI();
 
@@ -152,10 +152,17 @@ module.exports = {
 
                                         const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
                                         if(itemSlotID>=0 && itemSlotID<=2) {
-                                            not('Weapon embed.');
+                                            if (display != 'Extended') {
+                                                not('Weapon embed.');
 
-                                            const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState, version);
-                                            await interaction.editReply({embeds: [weaponEmbed], files: [thumbail]});
+                                                const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
+                                                await interaction.editReply({embeds: [weaponEmbed], files: [thumbail]});
+                                            } else {
+                                                not('Extended weapon embed.');
+
+                                                const extendedWeaponEmbed = embedBuilder.geExtendedWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
+                                                await interaction.editReply({embeds: [extendedWeaponEmbed], files: [thumbail]});
+                                            }
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
 
