@@ -1,6 +1,6 @@
 # Beyond
 
-![](https://img.shields.io/github/package-json/v/Niigh/Beyond) ![](https://img.shields.io/badge/license-AGPLv3-teal.svg)
+![](https://img.shields.io/github/package-json/v/Niigh/Beyond) ![](https://img.shields.io/badge/license-AGPLv3-teal.svg) ![GitHub deployments](https://img.shields.io/github/deployments/Niigh/Beyond/github-pages)
 
 An open-source Discord bot using the Destiny 2 API.
 
