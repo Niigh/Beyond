@@ -145,8 +145,13 @@ module.exports = {
                                             context.drawImage(masterwork, 0, 0, 96, 96);
                                         }
                                         // Watermark
-                                        const watermark = await Canvas.loadImage(bungieAPI.buildURLAsset(item.quality.displayVersionWatermarkIcons));
-                                        context.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+                                        if (item.quality != undefined) {
+                                            const watermark = await Canvas.loadImage(bungieAPI.buildURLAsset(item.quality.displayVersionWatermarkIcons));
+                                            context.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+                                        } else if (item.iconWatermark != undefined) {
+                                            const watermark = await Canvas.loadImage(bungieAPI.buildURLAsset(item.iconWatermark));
+                                            context.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+                                        }
 
                                         const thumbail = new MessageAttachment(canvas.toBuffer(), 'itemThumbail.png');
 
@@ -166,7 +171,7 @@ module.exports = {
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
                                             not('Armor embed.');
 
-                                            const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, res.data.Response, itemHash, itemState);
+                                            const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
                                             await interaction.editReply({embeds: [armorEmbed], files: [thumbail]});
                                         } else {
                                             switch (itemSlotID) {
