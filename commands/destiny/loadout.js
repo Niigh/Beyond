@@ -94,8 +94,6 @@ module.exports = {
                         return;
                     }
 
-                    //console.log(res.data.Response.profileCurrencies);
-
                     for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
                         const charId = res.data.Response.profile.data.characterIds[i];
                         const character = res.data.Response.characters.data[charId];
@@ -169,10 +167,18 @@ module.exports = {
                                                 await interaction.editReply({embeds: [extendedWeaponEmbed], files: [thumbail]});
                                             }
                                         } else if (itemSlotID>=3 && itemSlotID<=7) {
-                                            not('Armor embed.');
+                                            if (display != 'Extended') {
+                                                not('Armor embed.');
 
-                                            const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
-                                            await interaction.editReply({embeds: [armorEmbed], files: [thumbail]});
+                                                const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
+                                                await interaction.editReply({embeds: [armorEmbed], files: [thumbail]});
+                                            } else {
+                                                not('Extended armor embed.');
+
+                                                const extendedArmorEmbed = embedBuilder.getExtendedArmorEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState);
+                                                await interaction.editReply({embeds: [extendedArmorEmbed], files: [thumbail]});
+                                            }
+                                            
                                         } else {
                                             switch (itemSlotID) {
                                                 case 8:
@@ -231,12 +237,6 @@ module.exports = {
                                 });
                         }
                     }
-
-
-
-
-
-
                 })
                 .catch(async error => {
                     err(error.code);
@@ -245,8 +245,213 @@ module.exports = {
                     }
                     console.error(error);
                 });
-        } else {
 
+        } else {
+            bungieAPI.get(`/Destiny2/SearchDestinyPlayer/-1/${encodeURIComponent(bungieTag)}/`)
+            .then(async res => {
+                inf(`Status code: ${res.status}`);
+
+                if(bungieAPI.isBungieAPIDown(res)) {
+                    inf('Bungie API down.');
+                    await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
+                    return;
+                }
+
+                if(res.data.Response[0]==undefined) {
+                    inf('Wrong Bungie Tag');
+                    await interaction.editReply({embeds: [embedBuilder.getBungieTagErrorEmbed()]});
+                    return;
+                }
+
+                const memberId = res.data.Response[0].membershipId;
+                var memberType;
+                if(res.data.Response[0].crossSaveOverride==0) {
+                    memberType = res.data.Response[0].membershipType;
+                } else {
+                    for (const type of res.data.Response) {
+                        if (type.crossSaveOverride==type.membershipType) {
+                            memberType = type.membershipType;
+                            break;
+                        }
+                    }
+                }
+
+                inf(`Requesting bungie profile: ${bungieTag} ...`);
+
+                bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/?components=100,103,200`)
+                .then(async res => {
+                    inf(`Status code: ${res.status}`);
+
+                    if(bungieAPI.isBungieAPIDown(res)) {
+                        inf('Bungie API down.');
+                        await interaction.editReply({embeds: [embedBuilder.getAPIDownEmbed()]});
+                        return;
+                    }
+
+                    if(res.data.ErrorCode != 1) {
+                        await interaction.editReply({embed: embedBuilder.getRequestErrorEmbed(), ephemeral: true});
+                        return;
+                    }
+
+                    for (let i = 0; i < res.data.Response.profile.data.characterIds.length; i++) {
+                        const charId = res.data.Response.profile.data.characterIds[i];
+                        const character = res.data.Response.characters.data[charId];
+                        if (character.classType == bungieAPI.getClassID(guardianClass)) {
+                            not(`Class: ${bungieAPI.getClass(character.classType)}`);
+
+                            bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Character/${charId}/?components=200,205`)
+                                .then(async res => {
+                                    inf(`Status code: ${res.status}`);
+
+                                    const itemHash = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemHash;
+                                    const itemInstanceId = res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].itemInstanceId;
+                                    const itemState = bungieAPI.getItemState(res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].state);
+                                    var emblemMetrics;
+                                    if(bungieAPI.getEquippedSlot(itemSlot) == 13 && res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash != undefined) {
+                                        emblemMetrics = 
+                                        [res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricHash, 
+                                        res.data.Response.equipment.data.items[bungieAPI.getEquippedSlot(itemSlot)].metricObjective];
+                                    }
+
+                                    bungieAPI.get(`/Destiny2/${memberType}/Profile/${memberId}/Item/${itemInstanceId}/?components=200,300,301,302,304,305,306,308,309,310`)
+                                    .then(async res => {
+                                        inf(`Status code: ${res.status}`);
+
+                                        // Thumbail
+                                        destinyDB.loadDB();
+                                        const item = destinyDB.getDetailedEquippedItem(itemHash);
+
+                                        const ornement = destinyDB.getWeaponOrnement(res.data.Response.sockets.data.sockets);
+                                        destinyDB.closeDB();
+
+                                        const canvas = Canvas.createCanvas(96, 96);
+                                        const context = canvas.getContext('2d');
+                                        if(ornement != undefined && ornement.displayProperties.name != 'Default Ornament') {
+                                            if(ornement.displayProperties.name != 'Default Ornament') {
+                                                const backgroundOrnement = await Canvas.loadImage(bungieAPI.buildURLAsset(ornement.displayProperties.icon));
+                                                context.drawImage(backgroundOrnement, 0, 0, canvas.width, canvas.height);
+                                            }
+                                        } else {
+                                            const background = await Canvas.loadImage(bungieAPI.buildURLAsset(item.displayProperties.icon));
+                                            context.drawImage(background, 0, 0, canvas.width, canvas.height);
+                                        }
+                                        
+                                        // Masterwork
+                                        if(itemState.includes('Masterwork')) {
+                                            const masterwork = await Canvas.loadImage('./img/icons/misc/Masterwork.png');
+                                            context.drawImage(masterwork, 0, 0, 96, 96);
+                                        }
+                                        // Watermark
+                                        if (item.quality != undefined) {
+                                            const watermark = await Canvas.loadImage(bungieAPI.buildURLAsset(item.quality.displayVersionWatermarkIcons));
+                                            context.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+                                        } else if (item.iconWatermark != undefined) {
+                                            const watermark = await Canvas.loadImage(bungieAPI.buildURLAsset(item.iconWatermark));
+                                            context.drawImage(watermark, 0, 0, canvas.width, canvas.height);
+                                        }
+
+                                        const thumbail = new MessageAttachment(canvas.toBuffer(), 'itemThumbail.png');
+
+                                        const itemSlotID = bungieAPI.getEquippedSlot(itemSlot);
+                                        if(itemSlotID>=0 && itemSlotID<=2) {
+                                            if (display != 'Extended') {
+                                                not('Weapon embed.');
+
+                                                const weaponEmbed = embedBuilder.getWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState, bungieTag);
+                                                await interaction.editReply({embeds: [weaponEmbed], files: [thumbail]});
+                                            } else {
+                                                not('Extended weapon embed.');
+
+                                                const extendedWeaponEmbed = embedBuilder.geExtendedWeaponEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState, bungieTag);
+                                                await interaction.editReply({embeds: [extendedWeaponEmbed], files: [thumbail]});
+                                            }
+                                        } else if (itemSlotID>=3 && itemSlotID<=7) {
+                                            if (display != 'Extended') {
+                                                not('Armor embed.');
+
+                                                const armorEmbed = embedBuilder.getArmorEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState, bungieTag);
+                                                await interaction.editReply({embeds: [armorEmbed], files: [thumbail]});
+                                            } else {
+                                                not('Extended armor embed.');
+
+                                                const extendedArmorEmbed = embedBuilder.getExtendedArmorEmbed(discordID, avatar, itemSlot, res.data.Response, itemHash, itemState, bungieTag);
+                                                await interaction.editReply({embeds: [extendedArmorEmbed], files: [thumbail]});
+                                            }
+                                            
+                                        } else {
+                                            switch (itemSlotID) {
+                                                case 8:
+                                                    not('Ghost embed.');
+
+                                                    const ghostEmbed = embedBuilder.getGhostEmbed(discordID, avatar, res.data.Response, itemHash, itemState, bungieTag);
+                                                    await interaction.editReply({embeds: [ghostEmbed], files: [thumbail]});
+                                                    break;
+                                                case 9:
+                                                    not('Sparrow embed.');
+
+                                                    const sparrowEmbed = embedBuilder.getSparrowEmbed(discordID, avatar, res.data.Response, itemHash, itemState, bungieTag);
+                                                    await interaction.editReply({embeds: [sparrowEmbed], files: [thumbail]});
+                                                    break;
+                                                case 10:
+                                                    not('Ship embed.');
+
+                                                    const shipEmbed = embedBuilder.getShipEmbed(discordID, avatar, res.data.Response, itemHash, itemState, bungieTag);
+                                                    await interaction.editReply({embeds: [shipEmbed], files: [thumbail]});
+                                                    break;
+                                                case 11:
+                                                    not('Subclass embed.');
+
+                                                    const subclassEmbed = embedBuilder.getSubclassEmbed(discordID, avatar, res.data.Response, itemHash, bungieTag);
+                                                    await interaction.editReply({embeds: [subclassEmbed]});
+                                                    break;
+                                                case 13:
+                                                    not('Emblem embed.');
+
+                                                    const emblemEmbed = embedBuilder.getEmblemEmbed(discordID, avatar, itemHash, itemState, emblemMetrics, bungieTag);
+                                                    await interaction.editReply({embeds: [emblemEmbed]});
+                                                    break;
+                                                default:
+                                                    err('This equipement slot doesn\'t exist.');
+
+                                                    await interaction.editReply({embeds: [embedBuilder.getErrorEmbed({code: 'SLOT_ERROR'})]});
+                                                    break;
+                                                
+                                            }
+                                        }
+                                    })
+                                    .catch(async error => {
+                                        err(error.code);
+                                        if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                                            await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
+                                        }
+                                        console.error(error);
+                                    });
+                                })
+                                .catch(async error => {
+                                    err(error.code);
+                                    if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                                        await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
+                                    }
+                                    console.error(error);
+                                });
+                        }
+                    }
+                })
+                .catch(async error => {
+                    err(error.code);
+                    if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                        await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
+                    }
+                    console.error(error);
+                });
+            })
+            .catch(async error => {
+                err(error.code);
+                if(error.code == 'ERR_REQUEST_ABORTED' || error.code=='ECONNABORTED') {
+                    await interaction.editReply({embeds: [embedBuilder.getErrorEmbed(error)]});
+                }
+                console.error(error);
+            });
         }
     },
 };
